@@ -41,5 +41,21 @@ pipeline {
                 }
             }
         }
+        stage('Notify') {
+            agent {
+                docker {
+                    image 'alpine:latest'
+                }
+            }
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'master') {
+                        echo '🚀 Deploy in produzione!'
+                    } else {
+                        echo '🔧 Deploy in ambiente di test!'
+                    }
+                }
+            }
+        }
     }
 }
