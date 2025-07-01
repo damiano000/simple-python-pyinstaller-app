@@ -13,14 +13,16 @@ pipeline {
             }
         }
         stage('Manual Approval') {
-            script {
-                def approvato = input(
-                message: 'Vuoi approvare il deploy?',
-                parameters: [
-                    choice(name: 'ENV', choices: ['test', 'prod'], description: 'Seleziona l\'ambiente di deploy'),
-                ]
-            )
-                echo "Hai scelto di approvare il deploy nell'ambiente: ${approvato}"
+            steps {
+                script {
+                    def approvato = input(
+                        message: 'Vuoi approvare il deploy?',
+                        parameters: [
+                            choice(name: 'ENV', choices: ['test', 'prod'], description: "Seleziona l'ambiente di deploy"),
+                        ]
+                    )
+                    echo "Hai scelto di approvare il deploy nell'ambiente: ${approvato}"
+                }
             }
         }
         stage('Deploy') {
