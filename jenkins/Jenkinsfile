@@ -1,6 +1,27 @@
 pipeline {
-    agent any                 // niente container
+    agent any
+
+    environment {
+        NOME = 'Damiano'
+        PROGETTO = 'CI/CD'
+    }
     stages {
+        stage('Stage 1') {
+            steps {
+                echo "👋 Ciao ${NOME}, il progetto è: ${PROGETTO}"
+            }
+        }
+        stage('Stage 2')  {
+            environment {
+                NOME = 'SUPER Damiano'
+                SOLO_STAGE = 'Variabile solo per stage 2'
+            }
+            steps {
+                echo "LOCAL: 👋 Il mio nome è: ${NOME}"
+                echo "LOCAL: 👋 ${SOLO_STAGE}"
+                echo "GLOBAL: 👋 Il mio progetto è su: ${PROGETTO}"
+            }
+        }
         stage('Build') {
             steps { echo '🔨 Compilazione OK' }
         }
