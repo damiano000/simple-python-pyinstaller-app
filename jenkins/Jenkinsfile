@@ -1,33 +1,29 @@
 pipeline {
     agent any
+
     environment {
-        TARGET_ENV = 'test'
+        BUILD_TYPE = 'Release'
     }
+
     stages {
         stage('Build') {
             steps {
-                echo 'Compilation ok!'
+                echo "Build type: ${env.BUILD_TYPE}"
             }
         }
-        stage('Deploy in production') {
+        stage('Test') {
+            steps {
+                echo 'Test passed!'
+            }
+        }
+        stage('Deploy') {
             when {
                 expression {
-                    env.TARGET_ENV == 'prod'
+                    return env.BUILD_NUMBER.toInteger() % 2 != 0
                 }
             }
             steps {
-                echo 'Deploying to production environment!'
-            }
-        }
-        stage('Deploy in test') {
-            when {
-                expression {
-                    env.TARGET_ENV == 'test'
-                }
-            }
-
-            steps {
-                echo 'Deploy to test environment!'
+                echo "🚀 Deploy executed on odd build number: ${env.BUILD_NUMBER}"
             }
         }
     }
