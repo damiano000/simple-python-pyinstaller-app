@@ -33,6 +33,17 @@ pipeline {
                 }
             }
         }
+        stage('Dynamic Message') {
+            steps {
+                script {
+                    if (env.BUILD_NUMBER.toInteger() % 2 == 0) {
+                        echo "🟢 Even build number: ${env.BUILD_NUMBER}"
+                    } else {
+                        error("🔴 Odd build number: ${env.BUILD_NUMBER}")
+                    }
+                }
+            }
+        }
             stage('Python Matrix') {
                 matrix {
                     axes {
