@@ -1,29 +1,22 @@
 pipeline {
     agent any
 
-    environment {
-        BUILD_TYPE = 'Release'
-    }
-
     stages {
-        stage('Build') {
-            steps {
-                echo "Build type: ${env.BUILD_TYPE}"
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Test passed!'
-            }
-        }
-        stage('Deploy') {
-            when {
-                expression {
-                    return env.BUILD_NUMBER.toInteger() % 2 != 0
+        stage('Test Matrix') {
+            matrix {
+                axes {
+                    axis {
+                        name 'PYTHON_VERSION'
+                        values '3.8', '3.9', '3.10'
+                    }
                 }
-            }
-            steps {
-                echo "🚀 Deploy executed on odd build number: ${env.BUILD_NUMBER}"
+                stages {
+                    stage('Run Test') {
+                        steps {
+                            echo "Running tests for Python version: ${PYTHON_VERSION}"
+                        }
+                    }
+                }
             }
         }
     }
