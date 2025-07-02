@@ -1,23 +1,13 @@
 pipeline {
     agent any
-
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Compilation in progress...'
-                sh 'exit 1'
-            }
-        }
+    triggers {
+        cron('0 3 * * *')
     }
-    post {
-        always {
-            echo 'The build has finished'
-        }
-        success {
-            echo 'The build was successful'
-        }
-        failure {
-            echo 'The build failed'
+    stages {
+        stage('Nightly Build') {
+            steps {
+                echo 'Build at 3 AM'
+            }
         }
     }
 }
