@@ -1,33 +1,33 @@
 pipeline {
     agent any
-
+    environment {
+        TARGET_ENV = 'test'
+    }
     stages {
         stage('Build') {
             steps {
                 echo 'Compilation ok!'
             }
         }
-        stage('Test') {
-            steps {
-                echo 'Tests ok!'
-            }
-        }
-        stage('Manual Approval') {
-            steps {
-                script {
-                    def approvato = input(
-                        message: 'Vuoi approvare il deploy?',
-                        parameters: [
-                            choice(name: 'ENV', choices: ['test', 'prod'], description: "Seleziona l'ambiente di deploy"),
-                        ]
-                    )
-                    echo "Hai scelto di approvare il deploy nell'ambiente: ${approvato}"
+        stage('Deploy in production') {
+            when {
+                expression {
+                    env.TARGET_ENV == 'prod'
                 }
             }
-        }
-        stage('Deploy') {
             steps {
-                echo 'Deploy ok!'
+                echo 'Deploying to production environment!'
+            }
+        }
+        stage('Deploy in test') {
+            when {
+                expression {
+                    env.TARGET_ENV == 'test'
+                }
+            }
+
+            steps {
+                echo 'Deploy to test environment!'
             }
         }
     }
