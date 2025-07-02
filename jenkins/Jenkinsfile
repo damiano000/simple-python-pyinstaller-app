@@ -1,13 +1,86 @@
 pipeline {
     agent any
-    triggers {
-        cron('0 3 * * *')
+
+    parameters {
+        choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
+        string(name: 'RELEASE_VERSION', defaultValue: '1.0.0', description: 'Version of the release')
     }
+    environment {
+        ARTIFACT_NAME = "myapp-${params.RELEASE_VERSION}.tar.gz"
+    }
+    triggers {
+        cron('0 2 * * *') // Runs every day at 2 AM
+    }
+
     stages {
-        stage('Nightly Build') {
+        stage('Build') {
             steps {
-                echo 'Build at 3 AM'
+                echo "Building version ${params.RELEASE_VERSION} for environment ${params.DEPLOY_ENV}"
+                sh 'echo "Building the application..." > build.txt'
             }
+        }
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'echo "Running unit tests..." > unitTest.log'
+                    }
+                }
+                stage('Integration tests') {
+                    steps {
+                        sh 'echo "Running integration tests..." > integrationTest.log'
+                    }
+                }
+            }
+        }
+            stage('Python Matrix') {
+                matrix {
+                    axes {
+                        axis {
+                            name 'PYTHON_VERSION'
+                            values '3.8', '3.9', '3.10'
+                        }
+                        axis {
+                            name 'OS'
+                            values 'ubuntu-latest', 'windows-latest', 'macos-latest'
+                        }
+                    }
+                    stages {
+                        stage('Run Pytest') {
+                            steps {
+                                echo "Running tests on Python v-${PYTHON_VERSION} on ${OS.toUpperCase()}"
+                            }
+                        }
+                    }
+                }
+            }
+            stage('Manual approval') {
+                when {
+                    expression {
+                        params.DEPLOY_ENV == 'prod'
+                    }
+                }
+                steps {
+                    input message: 'Approve deployment to production?', ok: 'Deploy'
+                }
+            }
+            stage('Deploy') {
+                steps {
+                    echo "Deploying version ${params.RELEASE_VERSION} to ${params.DEPLOY_ENV} environment"
+                    sh 'tar czf $ARTIFACT_NAME build.txt'
+                }
+            }
+    }
+    post {
+        always {
+            echo 'Pipeline completed. Cleaning up...'
+        }
+        success {
+            echo '✔ Pipeline succeeded!'
+            archiveArtifacts artifacts: ARTIFACT_NAME, allowEmptyArchive: true
+        }
+        failure {
+            echo '✘ Pipeline failed!'
         }
     }
 }
