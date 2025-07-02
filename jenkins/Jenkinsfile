@@ -2,25 +2,14 @@ pipeline {
     agent any
 
     stages {
-        stage('Test Matrix') {
-            matrix {
-                axes {
-                    axis {
-                        name 'PYTHON_VERSION'
-                        values '3.8', '3.9', '3.10'
-                    }
-                    axis {
-                        name 'OS'
-                        values 'linux', 'windows', 'macos'
-                    }
-                }
-                stages {
-                    stage('Run  Tests') {
-                        steps {
-                            echo " Running matrix tests with Python ${PYTHON_VERSION} on ${OS}"
-                        }
-                    }
-                }
+        stage('Build') {
+            steps {
+                sh 'echo Hello > output.txt'
+            }
+        }
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'output.txt', onlyIfSuccessful: true
             }
         }
     }
