@@ -9,11 +9,15 @@ pipeline {
                         name 'PYTHON_VERSION'
                         values '3.8', '3.9', '3.10'
                     }
+                    axis {
+                        name 'OS'
+                        values 'linux', 'windows', 'macos'
+                    }
                 }
                 stages {
-                    stage('Run Test') {
+                    stage('Run  Tests') {
                         steps {
-                            echo "Running tests for Python version: ${PYTHON_VERSION}"
+                            echo " Running matrix tests with Python ${PYTHON_VERSION} on ${OS}"
                         }
                     }
                 }
