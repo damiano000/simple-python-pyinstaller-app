@@ -4,13 +4,20 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo Hello > output.txt'
+                echo 'Compilation in progress...'
+                sh 'exit 1'
             }
         }
-        stage('Archive Artifact') {
-            steps {
-                archiveArtifacts artifacts: 'output.txt', onlyIfSuccessful: true
-            }
+    }
+    post {
+        always {
+            echo 'The build has finished'
+        }
+        success {
+            echo 'The build was successful'
+        }
+        failure {
+            echo 'The build failed'
         }
     }
 }
