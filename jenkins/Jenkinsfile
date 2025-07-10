@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-        }
-    }
+    agent any            // gira sul nodo con accesso al Docker host
 
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
@@ -15,7 +11,7 @@ pipeline {
     }
 
     triggers {
-        cron('0 2 * * *') // Runs every day at 2 AM
+        cron('0 2 * * *')       // ogni giorno alle 02:00
     }
 
     stages {
@@ -27,13 +23,18 @@ pipeline {
         }
 
         stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.10'      // container solo per i test
+                    reuseNode true           // riusa la workspace
+                }
+            }
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        sh 'python3 -m unittest test_calc.py'
+                        sh 'python -m unittest test_calc.py'
                     }
                 }
-
                 stage('Integration Tests') {
                     steps {
                         sh 'echo "Running integration tests..." > integrationTest.log'
