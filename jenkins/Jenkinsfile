@@ -1,5 +1,9 @@
 pipeline {
-    agent any          // nodo con socket Docker
+    agent {
+        docker {
+            image 'python:3.10'
+        }
+    }
 
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
@@ -11,7 +15,7 @@ pipeline {
     }
 
     triggers {
-        cron('0 2 * * *')
+        cron('0 2 * * *') // Runs every day at 2 AM
     }
 
     stages {
@@ -25,24 +29,12 @@ pipeline {
         stage('Test') {
             parallel {
                 stage('Unit Tests') {
-                    agent {
-                        docker {
-                            image 'python:3.10'
-                            reuseNode true   // usa la stessa workspace
-                        }
-                    }
                     steps {
-                        sh 'python -m unittest test_calc.py'
+                        sh 'python3 -m unittest test_calc.py'
                     }
                 }
 
                 stage('Integration Tests') {
-                    agent {
-                        docker {
-                            image 'python:3.10'
-                            reuseNode true
-                        }
-                    }
                     steps {
                         sh 'echo "Running integration tests..." > integrationTest.log'
                     }
@@ -64,19 +56,22 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "Deploying version ${params.RELEASE_VERSION} to ${params.DEPLOY_ENV}"
+                echo "Deploying version ${params.RELEASE_VERSION} to ${params.DEPLOY_ENV} environment"
                 sh 'tar czf $ARTIFACT_NAME build.txt'
-                // qui potrai aggiungere docker build/push
             }
         }
     }
 
     post {
-        always  { echo 'Pipeline completed. Cleaning up...' }
+        always {
+            echo 'Pipeline completed. Cleaning up...'
+        }
         success {
             echo '✔ Pipeline succeeded!'
             archiveArtifacts artifacts: ARTIFACT_NAME, allowEmptyArchive: true
         }
-        failure { echo '✘ Pipeline failed!' }
+        failure {
+            echo '✘ Pipeline failed!'
+        }
     }
 }
