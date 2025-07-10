@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+        }
+    }
 
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
@@ -23,7 +27,7 @@ pipeline {
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        sh 'echo "Running unit tests..." > unitTest.log'
+                        sh 'python3 -m unittest test_calc.py'
                     }
                 }
                 stage('Integration tests') {
