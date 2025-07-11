@@ -30,8 +30,7 @@ pipeline {
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        env.PYTHONPATH = "sources"
-                        sh 'python3 -m unittest sources/test_calc.py'
+                        sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py'
                     }
                 }
 
