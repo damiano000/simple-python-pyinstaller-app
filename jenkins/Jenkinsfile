@@ -49,6 +49,8 @@ pipeline {
                 sh "git config user.email 'jenkins@localhost'"
                 sh "git config user.name 'Jenkins CI'"
 
+                sh 'git checkout master'
+                sh 'git pull origin master'
                 sh 'git add k8s/dev/deployment.yaml'
                 sh "git commit -m 'Update deployment.yaml for version ${params.RELEASE_VERSION}' || true"
                 sh 'git push origin master'
