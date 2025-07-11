@@ -7,7 +7,7 @@ pipeline {
 
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
-        string(name: 'RELEASE_VERSION', defaultValue: '1.0.0', description: 'Version of the release')
+        string(name: 'RELEASE_VERSION', defaultValue: '1.25.0', description: 'Version of the release')
     }
 
     environment {
@@ -39,6 +39,19 @@ pipeline {
                         sh 'echo "Running integration tests..." > integrationTest.log'
                     }
                 }
+            }
+        }
+
+        stage('Update k8s Yaml and Commit') {
+            steps {
+                sh "sed -i 's|image: nginx:.*|image: nginx:${params.RELEASE_VERSION}|' k8s/dev/deployment.yaml"
+
+                sh "git config user.email 'jenkins@localhost'"
+                sh "git config user.name 'Jenkins CI'"
+
+                sh 'git add k8s/dev/deployment.yaml'
+                sh "git commit -m 'Update deployment.yaml for version ${params.RELEASE_VERSION}' || true"
+                sh 'git push origin master'
             }
         }
 
