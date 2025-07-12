@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-        }
-    }
+    agent any
 
     parameters {
         choice(name: 'DEPLOY_ENV', choices: ['test', 'prod'], description: 'Choose the deployment environment')
@@ -27,6 +23,9 @@ pipeline {
         }
 
         stage('Test') {
+            agent {
+                docker { image 'python:3.10' }
+            }
             parallel {
                 stage('Unit Tests') {
                     steps {
@@ -43,15 +42,13 @@ pipeline {
         }
 
         stage('Docker Build and Push') {
-            agent any
             steps {
                 script {
                     def tag = "${params.RELEASE_VERSION}"
-                    sh "docker build -t myapp:${tag} ."
-
-                    withCredentials([usernamePassword(credentialId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "docker build -t damiano000/myapp:${tag} ."
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        sh "docker push myapp:${tag}"
+                        sh "docker push damiano000/myapp:${tag}"
                     }
                 }
             }
