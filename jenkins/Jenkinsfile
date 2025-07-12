@@ -22,22 +22,13 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Unit Test') {
             agent {
                 docker { image 'python:3.10' }
             }
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py'
-                    }
-                }
-
-                stage('Integration Tests') {
-                    steps {
-                        sh 'echo "Running integration tests..." > integrationTest.log'
-                    }
-                }
+            steps {
+                sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py'
+                sh 'echo "Running integration tests..." > integrationTest.log'
             }
         }
 
