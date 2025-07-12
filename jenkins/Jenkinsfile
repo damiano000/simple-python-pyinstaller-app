@@ -43,13 +43,14 @@ pipeline {
         }
 
         stage('Docker Build and Push') {
+            agent any
             steps {
                 script {
                     def tag = "${params.RELEASE_VERSION}"
                     sh "docker build -t myapp:${tag} ."
 
                     withCredentials([usernamePassword(credentialId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                         sh "docker push myapp:${tag}"
                     }
                 }
