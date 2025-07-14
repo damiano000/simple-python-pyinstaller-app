@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: damiano000/myapp:1.25.0
+          image: damiano000/myapp:1.26.0
           ports:
             - containerPort: 80
