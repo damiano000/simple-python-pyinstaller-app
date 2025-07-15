@@ -28,6 +28,7 @@ pipeline {
             }
             steps {
                 sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py | tee unitTest.log'
+                sh 'cp unitTest.log $WORKSPACE/'
             }
         }
 
