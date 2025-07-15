@@ -27,8 +27,7 @@ pipeline {
                 docker { image 'python:3.10' }
             }
             steps {
-                sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py'
-                sh 'echo "Running integration tests..." > integrationTest.log'
+                sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py | tee unitTest.log'
             }
         }
 
@@ -72,6 +71,7 @@ pipeline {
         success {
             echo '✔ Pipeline succeeded!'
             archiveArtifacts artifacts: ARTIFACT_NAME, allowEmptyArchive: true
+            archiveArtifacts artifacts: 'unitTest.log', allowEmptyArchive: true
         }
         failure {
             echo '✘ Pipeline failed!'
