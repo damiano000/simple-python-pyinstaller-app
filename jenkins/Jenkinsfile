@@ -27,7 +27,7 @@ pipeline {
                 docker { image 'python:3.10' }
             }
             steps {
-                sh 'PYTHONPATH=sources python3 -m unittest sources/test_calc.py | tee unitTest.log'
+                sh 'PYTHONPATH=sources python3 -m unittest -v sources/test_calc.py 2>&1 | tee unitTest.log'
                 stash includes: 'unitTest.log', name: 'test-log'
             }
         }
